@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Відгуки пацієнтів | Лікар Максим</title>
     
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary: #2c3e50;
-            --accent: #007AFF;
             --bg: #F5F7FA;
             --card-bg: #ffffff;
             --text-secondary: #6B7280;
@@ -28,6 +27,7 @@
             line-height: 1.5;
         }
 
+        /* --- STYLES --- */
         .profile-header {
             background: white;
             text-align: center;
@@ -35,75 +35,43 @@
             border-bottom: 1px solid #eee;
             margin-bottom: 40px;
         }
-
         .profile-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 15px;
-            border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+            margin-bottom: 15px; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-
         .profile-name { font-size: 1.5rem; font-weight: 700; margin: 0 0 5px 0; }
         .profile-bio { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
-
         .btn-primary {
-            display: inline-block;
-            background-color: var(--accent);
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
-            transition: transform 0.2s;
+            display: inline-block; background-color: #007AFF; color: white; text-decoration: none;
+            padding: 12px 24px; border-radius: 50px; font-weight: 600; transition: transform 0.2s;
         }
         .btn-primary:hover { transform: translateY(-2px); }
 
         .wall-container {
-            column-count: 3;
-            column-gap: 20px;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px 60px 20px;
+            column-count: 3; column-gap: 20px; max-width: 1100px; margin: 0 auto; padding: 0 20px 60px 20px;
         }
-
         .review-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            break-inside: avoid;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            border: 1px solid rgba(0,0,0,0.03);
+            background: var(--card-bg); border-radius: 16px; padding: 24px; margin-bottom: 20px;
+            break-inside: avoid; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03);
             transition: transform 0.2s;
         }
-
         .review-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
 
         .stars { color: #FFB400; font-size: 1.2rem; margin-bottom: 12px; letter-spacing: 2px; }
         .review-text { font-size: 0.95rem; color: #374151; margin-bottom: 20px; }
 
-        .author {
-            border-top: 1px solid #f3f4f6;
-            padding-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .author { border-top: 1px solid #f3f4f6; padding-top: 15px; display: flex; align-items: center; gap: 12px; }
+        .patient-avatar { width: 44px; height: 44px; border-radius: 50%; background-color: #eee; object-fit: cover; border: 1px solid #eee; }
+        
+        .author-info { display: flex; flex-direction: column; overflow: hidden; }
+        
+        .author-name {
+            font-weight: 600; font-size: 0.95rem; color: var(--primary); text-decoration: none;
+            display: inline-flex; align-items: center; white-space: nowrap;
         }
-
-        .patient-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #eee;
-            object-fit: cover;
-        }
-
-        .author-info { display: flex; flex-direction: column; }
-        .author-name { font-weight: 600; font-size: 0.9rem; color: var(--primary); }
+        a.author-name:hover { text-decoration: underline; color: #007AFF; }
+        
+        .social-icon { width: 16px; height: 16px; margin-left: 6px; vertical-align: middle; }
         .author-detail { font-size: 0.8rem; color: #9CA3AF; margin-top: 2px; }
 
         @media (max-width: 900px) { .wall-container { column-count: 2; } }
@@ -124,13 +92,52 @@
     </div>
 
     <script>
-        // ВАШЕ ПОСИЛАННЯ
+        // ВАШЕ ПОСИЛАННЯ НА CSV
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSs5tdxHhDMHgMHYlC8sms6RUVGDBvG_6lSp2F8SQ-0GqmtgjIPNbG9ekag5Pk5goHEeZCHAy9UA6YN/pub?gid=167862335&single=true&output=csv';
+
+        // База іконок (посилання на CDN)
+        const icons = {
+            instagram: 'https://cdn-icons-png.flaticon.com/512/174/174855.png',
+            facebook: 'https://cdn-icons-png.flaticon.com/512/5968/5968764.png',
+            tiktok: 'https://cdn-icons-png.flaticon.com/512/3046/3046121.png',
+            telegram: 'https://cdn-icons-png.flaticon.com/512/2111/2111646.png',
+            youtube: 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png',
+            twitter: 'https://cdn-icons-png.flaticon.com/512/5969/5969020.png', // X logo
+            linkedin: 'https://cdn-icons-png.flaticon.com/512/174/174857.png',
+            default: 'https://cdn-icons-png.flaticon.com/512/1006/1006771.png' // Планета
+        };
 
         function getStars(rating) {
             if (!rating) rating = 5;
             return '★'.repeat(rating) + '☆'.repeat(5 - rating);
         }
+
+        // Функція-детектор соцмережі
+        function detectSocial(link) {
+            if (!link) return null;
+            link = link.toLowerCase();
+            
+            // Якщо людина ввела просто @нік, вважаємо це Інстаграмом
+            if (link.startsWith('@')) return { type: 'instagram', url: `https://instagram.com/${link.substring(1)}`, icon: icons.instagram };
+            
+            // Нормалізуємо посилання (додаємо https якщо немає)
+            let fullUrl = link.startsWith('http') ? link : `https://${link}`;
+
+            if (fullUrl.includes('instagram.com')) return { type: 'instagram', url: fullUrl, icon: icons.instagram };
+            if (fullUrl.includes('facebook.com') || fullUrl.includes('fb.com')) return { type: 'facebook', url: fullUrl, icon: icons.facebook };
+            if (fullUrl.includes('tiktok.com')) return { type: 'tiktok', url: fullUrl, icon: icons.tiktok };
+            if (fullUrl.includes('t.me') || fullUrl.includes('telegram.org')) return { type: 'telegram', url: fullUrl, icon: icons.telegram };
+            if (fullUrl.includes('youtube.com') || fullUrl.includes('youtu.be')) return { type: 'youtube', url: fullUrl, icon: icons.youtube };
+            if (fullUrl.includes('linkedin.com')) return { type: 'linkedin', url: fullUrl, icon: icons.linkedin };
+            if (fullUrl.includes('twitter.com') || fullUrl.includes('x.com')) return { type: 'twitter', url: fullUrl, icon: icons.twitter };
+
+            // Якщо нічого не підійшло - повертаємо "Сайт"
+            return { type: 'website', url: fullUrl, icon: icons.default };
+        }
+
+        window.handleImageError = function(img, fallbackUrl) {
+            if (img.src !== fallbackUrl) img.src = fallbackUrl;
+        };
 
         Papa.parse(sheetUrl, {
             download: true,
@@ -141,11 +148,6 @@
                 const container = document.getElementById('reviews-wall');
                 container.innerHTML = '';
 
-                if (data.length === 0) {
-                    container.innerHTML = '<p style="text-align:center">Поки немає відгуків.</p>';
-                    return;
-                }
-
                 data.forEach(row => {
                     const review = row['Review'] || row['Відгук'] || row['Feedback'];
                     if (!review) return;
@@ -153,23 +155,43 @@
                     const name = row['Name'] || row["Ім'я"] || 'Анонімно';
                     const rating = parseInt(row['Rating'] || row['Оцінка'] || '5');
                     const detail = row['Detail'] || row['Деталі'] || ''; 
-                    
-                    // --- ЛОГІКА GRAVATAR ---
-                    // Шукаємо колонку Email (або Пошта)
                     const email = row['Email'] || row['email'] || row['Пошта'] || '';
                     
-                    let avatarUrl;
+                    // --- ОБРОБКА ПОСИЛАННЯ ---
+                    // Читаємо колонку Link або Посилання
+                    const rawLink = row['Link'] || row['Посилання'] || row['Social'] || row['Instagram'] || '';
+                    const socialData = detectSocial(rawLink);
+
+                    // --- АВАТАРКА ---
+                    // 1. Спочатку пробуємо Gravatar (Пошта)
+                    let avatarUrl = '';
                     if (email) {
-                        // 1. Очищаємо email (прибираємо пробіли, робимо маленькі літери)
-                        const cleanEmail = email.trim().toLowerCase();
-                        // 2. Шифруємо в MD5 (вимога Gravatar)
-                        const emailHash = md5(cleanEmail);
-                        // 3. Формуємо посилання. d=identicon означає, що якщо фото немає,
-                        // буде красива геометрична фігура.
-                        avatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=identicon&s=128`;
+                        const emailHash = md5(email.trim().toLowerCase());
+                        avatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404&s=200`;
+                    }
+                    
+                    // 2. Якщо є посилання на соцмережу, пробуємо витягнути фото через unavatar (це працює для багатьох сайтів)
+                    let unavatarUrl = '';
+                    if (socialData) {
+                        // unavatar вміє брати іконку сайту або фото профілю, якщо пощастить
+                        unavatarUrl = `https://unavatar.io/${socialData.url.replace('https://', '')}`;
+                    }
+                    
+                    // Якщо Gravatar немає, стартуємо з unavatar, якщо і того немає - ініціали
+                    let initialSrc = avatarUrl || unavatarUrl || `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`;
+                    const fallbackSrc = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=128`;
+
+                    // --- HTML ІМЕНІ ---
+                    let nameHtml = '';
+                    if (socialData) {
+                        // Якщо є посилання - додаємо іконку
+                        nameHtml = `
+                            <a href="${socialData.url}" target="_blank" class="author-name">
+                                ${name} 
+                                <img src="${socialData.icon}" class="social-icon" alt="${socialData.type}"/>
+                            </a>`;
                     } else {
-                        // Якщо пошти немає - генеруємо аватар з ініціалами
-                        avatarUrl = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`;
+                        nameHtml = `<span class="author-name">${name}</span>`;
                     }
 
                     const card = document.createElement('div');
@@ -179,9 +201,11 @@
                         <div class="stars">${getStars(rating)}</div>
                         <div class="review-text">${review}</div>
                         <div class="author">
-                            <img src="${avatarUrl}" class="patient-avatar">
+                            <img src="${initialSrc}" 
+                                 class="patient-avatar" 
+                                 onerror="handleImageError(this, '${fallbackSrc}')">
                             <div class="author-info">
-                                <span class="author-name">${name}</span>
+                                ${nameHtml}
                                 ${detail ? `<span class="author-detail">${detail}</span>` : ''}
                             </div>
                         </div>
