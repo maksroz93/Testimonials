@@ -7,10 +7,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         :root {
-            --primary-color: #2c3e50; /* Темно-синій медичний */
-            --accent-color: #3498db; /* Блакитний */
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --primary-color: #2c3e50; /* Темно-синій */
+            --bg-color: #f8f9fa;      /* Світлий фон */
+            --card-bg: #ffffff;       /* Білі картки */
             --text-color: #333;
         }
 
@@ -29,7 +28,7 @@
 
         h1 {
             color: var(--primary-color);
-            font-size: 2.5em;
+            font-size: 2.2em;
             margin-bottom: 10px;
         }
 
@@ -38,9 +37,9 @@
             font-size: 1.1em;
         }
 
-        /* Магія Masonry (Цегляна кладка) */
+        /* Налаштування "стіни" */
         .wall-container {
-            column-count: 3; /* 3 колонки на пк */
+            column-count: 3;
             column-gap: 20px;
             max-width: 1200px;
             margin: 0 auto;
@@ -50,22 +49,25 @@
             background: var(--card-bg);
             border-radius: 12px;
             padding: 24px;
-            margin-bottom: 20px; /* Відступ знизу */
-            break-inside: avoid; /* Щоб картку не розривало між колонками */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s ease;
+            margin-bottom: 20px; /* Відступ між картками по вертикалі */
+            break-inside: avoid; /* Заборона розриву картки */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             border: 1px solid #eee;
+            transition: transform 0.2s;
         }
 
         .review-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
+        /* Зірочки по центру */
         .stars {
-            color: #f1c40f; /* Жовтий для зірок */
-            font-size: 1.2em;
-            margin-bottom: 12px;
+            color: #f1c40f;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+            text-align: center;
+            display: block;
         }
 
         .review-text {
@@ -73,53 +75,46 @@
             line-height: 1.6;
             color: #444;
             margin-bottom: 20px;
+            text-align: left;
             font-style: italic;
         }
 
+        /* Підпис без фото */
         .author {
-            display: flex;
-            align-items: center;
             border-top: 1px solid #f0f0f0;
             padding-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background-color: var(--accent-color);
-            color: white;
-            border-radius: 50%;
+        .author-name {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.95em;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 12px;
-            font-size: 1.1em;
         }
 
-        .author-info h4 {
-            margin: 0;
-            font-size: 0.95em;
-            color: var(--primary-color);
-        }
-
-        .author-info span {
-            font-size: 0.8em;
+        .author-detail {
+            font-size: 0.85em;
             color: #888;
         }
 
         .verified-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             background-color: #e3f2fd;
             color: #1565c0;
             font-size: 0.7em;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-            vertical-align: middle;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: 600;
         }
 
-        /* Адаптивність */
+        /* Адаптивність для мобільних */
         @media (max-width: 900px) {
             .wall-container { column-count: 2; }
         }
@@ -134,68 +129,44 @@
 
     <header>
         <h1>Історії пацієнтів</h1>
-        <p class="subtitle">Відгуки батьків, які довірили мені здоров'я своїх дітей</p>
+        <p class="subtitle">Чесні відгуки батьків</p>
     </header>
 
     <div id="reviews-wall" class="wall-container">
-        <p style="text-align:center">Завантаження відгуків...</p>
+        <p id="loading-text" style="text-align:center; color:#666;">Завантаження відгуків...</p>
     </div>
 
     <script>
-        // ---------------------------------------------------------
-        // Вставте сюди ваше посилання з Google Sheets (CSV)
-        // ---------------------------------------------------------
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSs5tdxHhDMHgMHYlC8sms6RUVGDBvG_6lSp2F8SQ-0GqmtgjIPNbG9ekag5Pk5goHEeZCHAy9UA6YN/pub?gid=167862335&single=true&output=csv'; 
+        // ВАШЕ ПОСИЛАННЯ ВЖЕ ВСТАВЛЕНО ТУТ:
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSs5tdxHhDMHgMHYlC8sms6RUVGDBvG_6lSp2F8SQ-0GqmtgjIPNbG9ekag5Pk5goHEeZCHAy9UA6YN/pub?gid=167862335&single=true&output=csv';
 
-        // Функція для генерації зірочок
         function getStars(rating) {
+            // Захист, якщо оцінки немає або вона крива
+            if (!rating || rating < 1) rating = 5; 
+            if (rating > 5) rating = 5;
             return '★'.repeat(rating) + '☆'.repeat(5 - rating);
         }
 
-        // Функція для отримання ініціалів
-        function getInitials(name) {
-            return name ? name.charAt(0).toUpperCase() : '?';
-        }
-
-        // Завантаження та обробка даних
         Papa.parse(sheetUrl, {
             download: true,
-            header: true, // Вважаємо перший рядок заголовками
+            header: true,
+            skipEmptyLines: true,
             complete: function(results) {
                 const data = results.data;
                 const container = document.getElementById('reviews-wall');
-                container.innerHTML = ''; // Очистити "Завантаження..."
+                const loadingText = document.getElementById('loading-text');
+                
+                // Прибираємо напис "Завантаження"
+                if (loadingText) loadingText.style.display = 'none';
+
+                if (data.length === 0) {
+                    container.innerHTML = '<p style="text-align:center">Немає відгуків для відображення.</p>';
+                    return;
+                }
 
                 data.forEach(row => {
-                    // Перевірка, чи не пустий рядок (Google іноді додає пусті)
-                    if (!row['Review'] && !row['Name']) return;
-
-                    // Назви колонок мають збігатися з тими, що у вашій таблиці (англійською краще)
-                    // Припустимо колонки: Name, Review, Rating, Detail
-                    const name = row['Name'] || 'Анонімно';
-                    const review = row['Review'] || '';
-                    const rating = parseInt(row['Rating']) || 5;
-                    const detail = row['Detail'] || 'Пацієнт';
-
-                    const card = document.createElement('div');
-                    card.className = 'review-card';
-                    
-                    card.innerHTML = `
-                        <div class="stars">${getStars(rating)}</div>
-                        <div class="review-text">"${review}"</div>
-                        <div class="author">
-                            <div class="avatar">${getInitials(name)}</div>
-                            <div class="author-info">
-                                <h4>${name} <span class="verified-badge">✔ Перевірено</span></h4>
-                                <span>${detail}</span>
-                            </div>
-                        </div>
-                    `;
-
-                    container.appendChild(card);
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+                    // ----------------------------------------------------
+                    // РОЗУМНИЙ ПОШУК КОЛОНОК (UKR/ENG)
+                    // ----------------------------------------------------
+                    // Шукаємо текст відгуку в різних варіантах назв
+                    const review = row['Review'] || row['review'] || row['Відгук'] || row['відгук'] ||
