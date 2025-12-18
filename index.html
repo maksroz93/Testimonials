@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Відгуки пацієнтів | Лікар Максим</title>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -26,7 +28,6 @@
             line-height: 1.5;
         }
 
-        /* --- ШАПКА --- */
         .profile-header {
             background: white;
             text-align: center;
@@ -47,7 +48,7 @@
 
         .profile-name { font-size: 1.5rem; font-weight: 700; margin: 0 0 5px 0; }
         .profile-bio { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
-        
+
         .btn-primary {
             display: inline-block;
             background-color: var(--accent);
@@ -56,12 +57,11 @@
             padding: 12px 24px;
             border-radius: 50px;
             font-weight: 600;
-            transition: transform 0.2s;
             box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+            transition: transform 0.2s;
         }
         .btn-primary:hover { transform: translateY(-2px); }
 
-        /* --- СТІНА --- */
         .wall-container {
             column-count: 3;
             column-gap: 20px;
@@ -86,47 +86,25 @@
         .stars { color: #FFB400; font-size: 1.2rem; margin-bottom: 12px; letter-spacing: 2px; }
         .review-text { font-size: 0.95rem; color: #374151; margin-bottom: 20px; }
 
-        /* АВТОР + АВАТАР */
         .author {
             border-top: 1px solid #f3f4f6;
             padding-top: 15px;
             display: flex;
-            align-items: center; /* Вирівнювання по центру */
-            gap: 12px; /* Відступ між фото і текстом */
+            align-items: center;
+            gap: 12px;
         }
 
-        /* Стиль для фото пацієнта */
         .patient-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             background-color: #eee;
             object-fit: cover;
-            flex-shrink: 0; /* Щоб фото не сплющувалось */
         }
 
         .author-info { display: flex; flex-direction: column; }
-
-        .author-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            text-decoration: none; /* Прибираємо підкреслення */
-        }
-        
-        /* Якщо є посилання, додаємо ефект при наведенні */
-        a.author-name:hover { color: var(--accent); text-decoration: underline; }
-
+        .author-name { font-weight: 600; font-size: 0.9rem; color: var(--primary); }
         .author-detail { font-size: 0.8rem; color: #9CA3AF; margin-top: 2px; }
-        
-        .instagram-icon {
-            width: 14px;
-            height: 14px;
-            margin-left: 6px;
-            opacity: 0.7;
-        }
 
         @media (max-width: 900px) { .wall-container { column-count: 2; } }
         @media (max-width: 600px) { .wall-container { column-count: 1; } }
@@ -137,8 +115,8 @@
     <div class="profile-header">
         <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Doctor" class="profile-img">
         <h1 class="profile-name">Ваше Ім'я</h1>
-        <p class="profile-bio">Дитячий невролог | PhD Candidate</p>
-        <a href="LINKTREE_URL" class="btn-primary">📅 Записатись на консультацію</a>
+        <p class="profile-bio">Дитячий невролог</p>
+        <a href="LINKTREE_URL" class="btn-primary">📅 Записатись</a>
     </div>
 
     <div id="reviews-wall" class="wall-container">
@@ -176,42 +154,34 @@
                     const rating = parseInt(row['Rating'] || row['Оцінка'] || '5');
                     const detail = row['Detail'] || row['Деталі'] || ''; 
                     
-                    // --- ЛОГІКА INSTAGRAM ---
-                    // Читаємо колонку Instagram або Insta або Link
-                    let instaNick = row['Instagram'] || row['Insta'] || '';
+                    // --- ЛОГІКА GRAVATAR ---
+                    // Шукаємо колонку Email (або Пошта)
+                    const email = row['Email'] || row['email'] || row['Пошта'] || '';
                     
-                    // Чистимо нікнейм (прибираємо @, пробіли, посилання)
-                    instaNick = instaNick.replace('@', '').replace('https://instagram.com/', '').replace('https://www.instagram.com/', '').replace('/', '').trim();
-
-                    // Формуємо посилання на фото (через сервіс Unavatar)
-                    // Якщо ніка немає, ставимо "пустушку"
-                    let avatarUrl = '';
-                    let profileLink = '';
-                    
-                    if (instaNick) {
-                        avatarUrl = `https://unavatar.io/instagram/${instaNick}`;
-                        profileLink = `https://instagram.com/${instaNick}`;
+                    let avatarUrl;
+                    if (email) {
+                        // 1. Очищаємо email (прибираємо пробіли, робимо маленькі літери)
+                        const cleanEmail = email.trim().toLowerCase();
+                        // 2. Шифруємо в MD5 (вимога Gravatar)
+                        const emailHash = md5(cleanEmail);
+                        // 3. Формуємо посилання. d=identicon означає, що якщо фото немає,
+                        // буде красива геометрична фігура.
+                        avatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=identicon&s=128`;
                     } else {
-                        // Якщо інсти немає, використовуємо нейтральну іконку або першу літеру (але тут просто іконку)
-                         avatarUrl = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=128`;
+                        // Якщо пошти немає - генеруємо аватар з ініціалами
+                        avatarUrl = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`;
                     }
 
-                    // Створення картки
                     const card = document.createElement('div');
                     card.className = 'review-card';
                     
-                    // Створюємо HTML для імені (посилання або текст)
-                    const nameHtml = instaNick 
-                        ? `<a href="${profileLink}" target="_blank" class="author-name">${name} <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" class="instagram-icon" alt="IG"/></a>`
-                        : `<span class="author-name">${name}</span>`;
-
                     card.innerHTML = `
                         <div class="stars">${getStars(rating)}</div>
                         <div class="review-text">${review}</div>
                         <div class="author">
-                            <img src="${avatarUrl}" class="patient-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
+                            <img src="${avatarUrl}" class="patient-avatar">
                             <div class="author-info">
-                                ${nameHtml}
+                                <span class="author-name">${name}</span>
                                 ${detail ? `<span class="author-detail">${detail}</span>` : ''}
                             </div>
                         </div>
