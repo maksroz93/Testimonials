@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Відгуки пацієнтів</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* Темно-синій медичний */
+            --accent-color: #3498db; /* Блакитний */
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text-color);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        /* Магія Masonry (Цегляна кладка) */
+        .wall-container {
+            column-count: 3; /* 3 колонки на пк */
+            column-gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .review-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px; /* Відступ знизу */
+            break-inside: avoid; /* Щоб картку не розривало між колонками */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease;
+            border: 1px solid #eee;
+        }
+
+        .review-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stars {
+            color: #f1c40f; /* Жовтий для зірок */
+            font-size: 1.2em;
+            margin-bottom: 12px;
+        }
+
+        .review-text {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .author {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 1.1em;
+        }
+
+        .author-info h4 {
+            margin: 0;
+            font-size: 0.95em;
+            color: var(--primary-color);
+        }
+
+        .author-info span {
+            font-size: 0.8em;
+            color: #888;
+        }
+
+        .verified-badge {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        /* Адаптивність */
+        @media (max-width: 900px) {
+            .wall-container { column-count: 2; }
+        }
+
+        @media (max-width: 600px) {
+            .wall-container { column-count: 1; }
+            h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Історії пацієнтів</h1>
+        <p class="subtitle">Відгуки батьків, які довірили мені здоров'я своїх дітей</p>
+    </header>
+
+    <div id="reviews-wall" class="wall-container">
+        <p style="text-align:center">Завантаження відгуків...</p>
+    </div>
+
+    <script>
+        // ---------------------------------------------------------
+        // Вставте сюди ваше посилання з Google Sheets (CSV)
+        // ---------------------------------------------------------
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSs5tdxHhDMHgMHYlC8sms6RUVGDBvG_6lSp2F8SQ-0GqmtgjIPNbG9ekag5Pk5goHEeZCHAy9UA6YN/pub?gid=167862335&single=true&output=csv'; 
+
+        // Функція для генерації зірочок
+        function getStars(rating) {
+            return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+        }
+
+        // Функція для отримання ініціалів
+        function getInitials(name) {
+            return name ? name.charAt(0).toUpperCase() : '?';
+        }
+
+        // Завантаження та обробка даних
+        Papa.parse(sheetUrl, {
+            download: true,
+            header: true, // Вважаємо перший рядок заголовками
+            complete: function(results) {
+                const data = results.data;
+                const container = document.getElementById('reviews-wall');
+                container.innerHTML = ''; // Очистити "Завантаження..."
+
+                data.forEach(row => {
+                    // Перевірка, чи не пустий рядок (Google іноді додає пусті)
+                    if (!row['Review'] && !row['Name']) return;
+
+                    // Назви колонок мають збігатися з тими, що у вашій таблиці (англійською краще)
+                    // Припустимо колонки: Name, Review, Rating, Detail
+                    const name = row['Name'] || 'Анонімно';
+                    const review = row['Review'] || '';
+                    const rating = parseInt(row['Rating']) || 5;
+                    const detail = row['Detail'] || 'Пацієнт';
+
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    
+                    card.innerHTML = `
+                        <div class="stars">${getStars(rating)}</div>
+                        <div class="review-text">"${review}"</div>
+                        <div class="author">
+                            <div class="avatar">${getInitials(name)}</div>
+                            <div class="author-info">
+                                <h4>${name} <span class="verified-badge">✔ Перевірено</span></h4>
+                                <span>${detail}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
