@@ -3,147 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Відгуки пацієнтів</title>
+    <title>Відгуки пацієнтів | Лікар Максим</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --primary-color: #2c3e50; /* Темно-синій */
-            --bg-color: #f8f9fa;      /* Світлий фон */
-            --card-bg: #ffffff;       /* Білі картки */
-            --text-color: #333;
+            --primary: #2c3e50;
+            --accent: #007AFF;
+            --bg: #F5F7FA;
+            --card-bg: #ffffff;
+            --text-secondary: #6B7280;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
             margin: 0;
-            padding: 40px 20px;
-            color: var(--text-color);
+            padding: 0;
+            color: var(--primary);
+            line-height: 1.5;
         }
 
-        header {
+        /* --- ШАПКА --- */
+        .profile-header {
+            background: white;
             text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid #eee;
             margin-bottom: 40px;
         }
 
-        h1 {
-            color: var(--primary-color);
-            font-size: 2.2em;
-            margin-bottom: 10px;
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
+        .profile-name { font-size: 1.5rem; font-weight: 700; margin: 0 0 5px 0; }
+        .profile-bio { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px; }
+        
+        .btn-primary {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
         }
+        .btn-primary:hover { transform: translateY(-2px); }
 
-        /* Налаштування "стіни" */
+        /* --- СТІНА --- */
         .wall-container {
             column-count: 3;
             column-gap: 20px;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
+            padding: 0 20px 60px 20px;
         }
 
         .review-card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 24px;
-            margin-bottom: 20px; /* Відступ між картками по вертикалі */
-            break-inside: avoid; /* Заборона розриву картки */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border: 1px solid #eee;
+            margin-bottom: 20px;
+            break-inside: avoid;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.03);
             transition: transform 0.2s;
         }
 
-        .review-card:hover {
-            transform: translateY(-2px);
-        }
+        .review-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
 
-        /* Зірочки по центру */
-        .stars {
-            color: #f1c40f;
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            letter-spacing: 4px;
-            text-align: center;
-            display: block;
-        }
+        .stars { color: #FFB400; font-size: 1.2rem; margin-bottom: 12px; letter-spacing: 2px; }
+        .review-text { font-size: 0.95rem; color: #374151; margin-bottom: 20px; }
 
-        .review-text {
-            font-size: 0.95em;
-            line-height: 1.6;
-            color: #444;
-            margin-bottom: 20px;
-            text-align: left;
-            font-style: italic;
-        }
-
-        /* Підпис без фото */
+        /* АВТОР + АВАТАР */
         .author {
-            border-top: 1px solid #f0f0f0;
+            border-top: 1px solid #f3f4f6;
             padding-top: 15px;
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            align-items: center; /* Вирівнювання по центру */
+            gap: 12px; /* Відступ між фото і текстом */
         }
+
+        /* Стиль для фото пацієнта */
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #eee;
+            object-fit: cover;
+            flex-shrink: 0; /* Щоб фото не сплющувалось */
+        }
+
+        .author-info { display: flex; flex-direction: column; }
 
         .author-name {
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 0.95em;
-            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
             display: flex;
             align-items: center;
+            text-decoration: none; /* Прибираємо підкреслення */
+        }
+        
+        /* Якщо є посилання, додаємо ефект при наведенні */
+        a.author-name:hover { color: var(--accent); text-decoration: underline; }
+
+        .author-detail { font-size: 0.8rem; color: #9CA3AF; margin-top: 2px; }
+        
+        .instagram-icon {
+            width: 14px;
+            height: 14px;
+            margin-left: 6px;
+            opacity: 0.7;
         }
 
-        .author-detail {
-            font-size: 0.85em;
-            color: #888;
-        }
-
-        .verified-badge {
-            display: inline-flex;
-            align-items: center;
-            background-color: #e3f2fd;
-            color: #1565c0;
-            font-size: 0.7em;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-
-        /* Адаптивність для мобільних */
-        @media (max-width: 900px) {
-            .wall-container { column-count: 2; }
-        }
-
-        @media (max-width: 600px) {
-            .wall-container { column-count: 1; }
-            h1 { font-size: 1.8em; }
-        }
+        @media (max-width: 900px) { .wall-container { column-count: 2; } }
+        @media (max-width: 600px) { .wall-container { column-count: 1; } }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Історії пацієнтів</h1>
-        <p class="subtitle">Чесні відгуки батьків</p>
-    </header>
+    <div class="profile-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Doctor" class="profile-img">
+        <h1 class="profile-name">Ваше Ім'я</h1>
+        <p class="profile-bio">Дитячий невролог | PhD Candidate</p>
+        <a href="LINKTREE_URL" class="btn-primary">📅 Записатись на консультацію</a>
+    </div>
 
     <div id="reviews-wall" class="wall-container">
-        <p id="loading-text" style="text-align:center; color:#666;">Завантаження відгуків...</p>
+        <p style="text-align:center; color:#999">Завантаження...</p>
     </div>
 
     <script>
-        // ВАШЕ ПОСИЛАННЯ ВЖЕ ВСТАВЛЕНО ТУТ:
+        // ВАШЕ ПОСИЛАННЯ
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSs5tdxHhDMHgMHYlC8sms6RUVGDBvG_6lSp2F8SQ-0GqmtgjIPNbG9ekag5Pk5goHEeZCHAy9UA6YN/pub?gid=167862335&single=true&output=csv';
 
         function getStars(rating) {
-            // Захист, якщо оцінки немає або вона крива
-            if (!rating || rating < 1) rating = 5; 
-            if (rating > 5) rating = 5;
+            if (!rating) rating = 5;
             return '★'.repeat(rating) + '☆'.repeat(5 - rating);
         }
 
@@ -154,58 +161,64 @@
             complete: function(results) {
                 const data = results.data;
                 const container = document.getElementById('reviews-wall');
-                const loadingText = document.getElementById('loading-text');
-                
-                // Прибираємо напис "Завантаження"
-                if (loadingText) loadingText.style.display = 'none';
+                container.innerHTML = '';
 
                 if (data.length === 0) {
-                    container.innerHTML = '<p style="text-align:center">Немає відгуків для відображення.</p>';
+                    container.innerHTML = '<p style="text-align:center">Поки немає відгуків.</p>';
                     return;
                 }
 
                 data.forEach(row => {
-                    // ----------------------------------------------------
-                    // РОЗУМНИЙ ПОШУК КОЛОНОК (UKR/ENG)
-                    // ----------------------------------------------------
-                    // Шукаємо текст відгуку в різних варіантах назв
-                    const review = row['Review'] || row['review'] || row['Відгук'] || row['відгук'] || row['Feedback'];
-                    
-                    // Якщо відгуку немає — пропускаємо цей рядок
+                    const review = row['Review'] || row['Відгук'] || row['Feedback'];
                     if (!review) return;
 
-                    // Шукаємо ім'я
-                    const name = row['Name'] || row['name'] || row["Ім'я"] || row['Imya'] || 'Анонімно';
+                    const name = row['Name'] || row["Ім'я"] || 'Анонімно';
+                    const rating = parseInt(row['Rating'] || row['Оцінка'] || '5');
+                    const detail = row['Detail'] || row['Деталі'] || ''; 
                     
-                    // Шукаємо оцінку (якщо немає — ставимо 5)
-                    const ratingStr = row['Rating'] || row['rating'] || row['Оцінка'] || '5';
-                    const rating = parseInt(ratingStr);
+                    // --- ЛОГІКА INSTAGRAM ---
+                    // Читаємо колонку Instagram або Insta або Link
+                    let instaNick = row['Instagram'] || row['Insta'] || '';
+                    
+                    // Чистимо нікнейм (прибираємо @, пробіли, посилання)
+                    instaNick = instaNick.replace('@', '').replace('https://instagram.com/', '').replace('https://www.instagram.com/', '').replace('/', '').trim();
 
-                    // Шукаємо підпис/деталі
-                    const detail = row['Detail'] || row['detail'] || row['Деталі'] || row['Info'] || '';
+                    // Формуємо посилання на фото (через сервіс Unavatar)
+                    // Якщо ніка немає, ставимо "пустушку"
+                    let avatarUrl = '';
+                    let profileLink = '';
+                    
+                    if (instaNick) {
+                        avatarUrl = `https://unavatar.io/instagram/${instaNick}`;
+                        profileLink = `https://instagram.com/${instaNick}`;
+                    } else {
+                        // Якщо інсти немає, використовуємо нейтральну іконку або першу літеру (але тут просто іконку)
+                         avatarUrl = `https://ui-avatars.com/api/?name=${name}&background=random&color=fff&size=128`;
+                    }
 
-                    // Створюємо картку
+                    // Створення картки
                     const card = document.createElement('div');
                     card.className = 'review-card';
                     
+                    // Створюємо HTML для імені (посилання або текст)
+                    const nameHtml = instaNick 
+                        ? `<a href="${profileLink}" target="_blank" class="author-name">${name} <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" class="instagram-icon" alt="IG"/></a>`
+                        : `<span class="author-name">${name}</span>`;
+
                     card.innerHTML = `
                         <div class="stars">${getStars(rating)}</div>
-                        <div class="review-text">"${review}"</div>
+                        <div class="review-text">${review}</div>
                         <div class="author">
-                            <span class="author-name">
-                                ${name} 
-                                <span class="verified-badge">✔</span>
-                            </span>
-                            ${detail ? `<span class="author-detail">${detail}</span>` : ''}
+                            <img src="${avatarUrl}" class="patient-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
+                            <div class="author-info">
+                                ${nameHtml}
+                                ${detail ? `<span class="author-detail">${detail}</span>` : ''}
+                            </div>
                         </div>
                     `;
 
                     container.appendChild(card);
                 });
-            },
-            error: function(err) {
-                console.error("Помилка:", err);
-                document.getElementById('reviews-wall').innerHTML = '<p style="text-align:center; color:red">Помилка завантаження даних. Перевірте консоль.</p>';
             }
         });
     </script>
