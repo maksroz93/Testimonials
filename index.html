@@ -169,4 +169,45 @@
                     // РОЗУМНИЙ ПОШУК КОЛОНОК (UKR/ENG)
                     // ----------------------------------------------------
                     // Шукаємо текст відгуку в різних варіантах назв
-                    const review = row['Review'] || row['review'] || row['Відгук'] || row['відгук'] ||
+                    const review = row['Review'] || row['review'] || row['Відгук'] || row['відгук'] || row['Feedback'];
+                    
+                    // Якщо відгуку немає — пропускаємо цей рядок
+                    if (!review) return;
+
+                    // Шукаємо ім'я
+                    const name = row['Name'] || row['name'] || row["Ім'я"] || row['Imya'] || 'Анонімно';
+                    
+                    // Шукаємо оцінку (якщо немає — ставимо 5)
+                    const ratingStr = row['Rating'] || row['rating'] || row['Оцінка'] || '5';
+                    const rating = parseInt(ratingStr);
+
+                    // Шукаємо підпис/деталі
+                    const detail = row['Detail'] || row['detail'] || row['Деталі'] || row['Info'] || '';
+
+                    // Створюємо картку
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    
+                    card.innerHTML = `
+                        <div class="stars">${getStars(rating)}</div>
+                        <div class="review-text">"${review}"</div>
+                        <div class="author">
+                            <span class="author-name">
+                                ${name} 
+                                <span class="verified-badge">✔</span>
+                            </span>
+                            ${detail ? `<span class="author-detail">${detail}</span>` : ''}
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                });
+            },
+            error: function(err) {
+                console.error("Помилка:", err);
+                document.getElementById('reviews-wall').innerHTML = '<p style="text-align:center; color:red">Помилка завантаження даних. Перевірте консоль.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
